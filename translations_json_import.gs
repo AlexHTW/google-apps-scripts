@@ -47,11 +47,24 @@ function prepareData(json) {
     });
   });
 
-  // Prepare the rowData array using map
-  const rowData = Array.from(keys).map(key => [
-    key,
-    ...languages.map(lang => json[lang][key] || ''),
-  ]);
+  // Prepare the rowData array
+  const rowData = [];
+  Array.from(keys).forEach(key => {
+    const rowValues = languages.map(lang => json[lang][key] || '');
+    const isArrayValues = rowValues.some(value => Array.isArray(value));
+
+    if (isArrayValues) {
+      const maxLength = rowValues.reduce((max, value) => Math.max(max, Array.isArray(value) ? value.length : 0), 0);
+      for (let i = 0; i < maxLength; i++) {
+        rowData.push([
+          `${key} [${i}]`,
+          ...rowValues.map(value => (Array.isArray(value) && value[i] !== undefined ? value[i] : '')),
+        ]);
+      }
+    } else {
+      rowData.push([key, ...rowValues]);
+    }
+  });
 
   return { languages, rowData };
 }
