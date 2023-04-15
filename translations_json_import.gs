@@ -51,6 +51,12 @@ function prepareData(json) {
   const rowData = [];
   Array.from(keys).forEach(key => {
     const rowValues = languages.map(lang => json[lang][key] || '');
+    
+    // Skip the row if the value for the key in the first language is empty
+    if (!rowValues[0]) {
+      return;
+    }
+
     const isArrayValues = rowValues.some(value => Array.isArray(value));
 
     if (isArrayValues) {
