@@ -27,28 +27,47 @@ function createForm(columnData) {
   const formId = '1FvSTLI2COtAV7Ti14M5fKdgieNeBuiwu6bJEvxbiA9Y';
   const form = FormApp.openById(formId);
 
-  // Remove all existing items
   const items = form.getItems();
-  for (let i = 0; i < items.length; i++) {
-    form.deleteItem(items[i]);
-  }
+  let position = 0;
 
-  // Add Section 1
-  form.addTextItem()
-    .setTitle('What language do you want to add?');
+  // Update Section 1 items
+  updateOrCreateTextItem(form, items, position++, 'What language do you want to add?');
+  updateOrCreateTextItem(form, items, position++, 'Github username (to credit you in the repository)');
 
-  form.addTextItem()
-    .setTitle('Github username (to credit you in the repository)');
+  // Update Section 2 header item
+  updateOrCreateSectionHeaderItem(form, items, position++, 'Translate these texts into your language:', 'Mind variables before or after the text for your translation.');
 
-  // Add Section 2
-  form.addSectionHeaderItem()
-    .setTitle('Translate these texts into your language:')
-    .setHelpText('Mind variables before or after the text for your translation.');
-
-  // Add paragraph text items for each data item in the column
+  // Update translation items
   columnData.forEach(text => {
-    form.addParagraphTextItem()
-      .setTitle(('"' + text + '"'))
-      .setRequired(true);
+    updateOrCreateParagraphTextItem(form, items, position++, '"' + text + '"', true);
   });
+
+  // Remove any extra items
+  while (position < form.getItems().length) {
+    form.deleteItem(form.getItems()[position]);
+  }
+}
+
+function updateOrCreateTextItem(form, items, position, title) {
+  if (position < items.length && items[position].getType() === FormApp.ItemType.TEXT) {
+    items[position].asTextItem().setTitle(title);
+  } else {
+    form.addTextItem().setTitle(title);
+  }
+}
+
+function updateOrCreateSectionHeaderItem(form, items, position, title, helpText) {
+  if (position < items.length && items[position].getType() === FormApp.ItemType.SECTION_HEADER) {
+    items[position].asSectionHeaderItem().setTitle(title).setHelpText(helpText);
+  } else {
+    form.addSectionHeaderItem().setTitle(title).setHelpText(helpText);
+  }
+}
+
+function updateOrCreateParagraphTextItem(form, items, position, title, required) {
+  if (position < items.length && items[position].getType() === FormApp.ItemType.PARAGRAPH_TEXT) {
+    items[position].asParagraphTextItem().setTitle(title).setRequired(required);
+  } else {
+    form.addParagraphTextItem().setTitle(title).setRequired(required);
+  }
 }
